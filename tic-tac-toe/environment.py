@@ -57,17 +57,17 @@ class Environment:
             return self.ended
 
         #check rows
-        for i in range(LENGTH):
+        for i in range(self.length):
             for player in (self.x, self.o):
-                if self.board[i].sum() == player*LENGTH:
+                if self.board[i].sum() == player*self.length:
                     self.winner = player
-                    self.ended = true
+                    self.ended = True
                     return True
 
         #check columns
-        for j in range(LENGTH):
+        for j in range(self.length):
             for player in (self.x, self.o):
-                if self.board[:,j].sum() == player*LENGTH:
+                if self.board[:,j].sum() == player*self.length:
                     self.winner = player
                     self.ended = True
                     return True
@@ -75,12 +75,12 @@ class Environment:
         # check diagonals
         for player in (self.x, self.o):
         # top-left -> bottom-right diagonal
-            if self.board.trace() == player*LENGTH:
+            if self.board.trace() == player*self.length:
                 self.winner = player
                 self.ended = True
                 return True
         # top-right -> bottom-left diagonal
-            if np.fliplr(self.board).trace() == player*LENGTH:
+            if np.fliplr(self.board).trace() == player*self.length:
                 self.winner = player
                 self.ended = True
                 return True
