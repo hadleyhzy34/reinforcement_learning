@@ -20,3 +20,9 @@ EPS_DECAY = 0.995
 EPS_MIN = 0.05
 MAX_T = 1500
 NUM_FRAME = 2
+
+
+#replay buffer parameters
+alpha = 0.5
+epsilon = 0.05
+td_init = 1

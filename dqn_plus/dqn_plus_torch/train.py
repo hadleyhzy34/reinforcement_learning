@@ -21,7 +21,7 @@ def train(env, agent, num_episode, eps_init, eps_decay, eps_min, max_t):
             action = agent.act(state, eps)
             #print(f'action is : {action}, and type of action is: {type(action)}')
             next_state, reward, done, _ = env.step(action)
-            agent.memory.append((state, action, reward, next_state, done))
+            agent.memory.remember(state, action, reward, next_state, done)
 
             if t % 4 == 0 and len(agent.memory) >= agent.batch_size:
                 agent.learn()
