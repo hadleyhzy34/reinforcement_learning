@@ -36,9 +36,9 @@ class Agent:
         if random.random() > eps:
             state = torch.tensor(state, dtype=torch.float32)
             #import ipdb;ipdb.set_trace()
+            #print(f'not randomly\n')
             with torch.no_grad():
                 action_values = self.Q_local(state)
-            #print(f'not randomly\n')
             return np.argmax(action_values.cpu().data.numpy())
         else:
             #print(f'randomly, eps is: {eps}, action space is: {self.actions}\n')
@@ -47,8 +47,14 @@ class Agent:
     def learn(self):
         if not self.per:
             states, actions, rewards, next_states, dones = self.memory.sample(self.batch_size)
+            w = torch.ones(actions.size())
         else:
             index_set, states, actions, rewards, next_states, dones, probs = self.memory.sample(self.batch_size)
+            #import ipdb;ipdb.set_trace()
+            w = 1/len(self.memory)/probs
+            #print(f'current w shape is: {w.shape}, {w[0]}, {torch.max(w)}')
+            #import ipdb;ipdb.set_trace()
+            w = w/torch.max(w)
         #exp = random.sample(self.memory, self.batch_size)
         #print(f'current exp size is: {len(exp)}')
         #import ipdb; ipdb.set_trace()
@@ -57,13 +63,15 @@ class Agent:
         #rewards = torch.from_numpy(np.vstack([e[2] for e in exp])).float()
         #next_states = torch.from_numpy(np.vstack([e[3] for e in exp])).float()
         #dones = torch.from_numpy(np.vstack([e[4] for e in exp]).astype(np.uint8)).float()
-
+        #print(f'size of states and next states is: {states.shape}, {next_states.shape}')
         #import ipdb;ipdb.set_trace()
         Q_values = self.Q_local(states)
+        #print(f'current q values based on current states size is: {Q_values.shape}')
         Q_values = torch.gather(input=Q_values, dim=-1, index=actions)
 
         with torch.no_grad():
             Q_targets = self.Q_target(next_states)
+            #print(f'q target values based next states is: {Q_targets.shape}')
             #double dqn algo
             if not self.double:
                 Q_targets, _ = torch.max(input=Q_targets, dim=-1, keepdim=True)
@@ -77,13 +85,21 @@ class Agent:
                 #else:
                     #printf('two dif cal are not the same')
                 Q_targets = torch.gather(input=Q_targets, dim=1, index=inner_actions)
+                #print(f'size of q targets after inner actions is: {Q_targets.shape}, {states.shape},{next_states.shape}')
             Q_targets = rewards + self.gamma * (1 - dones) * Q_targets
 
-        loss = (Q_values - Q_targets).pow(2).mean()
+        deltas = Q_values - Q_targets
+        loss = ((w*deltas).pow(2)).mean()
 
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
+        #update experiences of sumtree for current batch
+        if self.per:
+            deltas = np.abs(deltas.detach().numpy().reshape(-1))
+            for i in range(self.batch_size):
+                self.memory.insert(deltas[i],index_set[i])
 
     #for every certain constant episodes, copy nn parameters from local to target to update target
     def soft_update(self, tau):

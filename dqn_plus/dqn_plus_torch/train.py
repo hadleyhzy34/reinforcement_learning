@@ -18,15 +18,20 @@ def train(env, agent, num_episode, eps_init, eps_decay, eps_min, max_t):
         while not done and t < max_t:
 
             t += 1
+            #print(f'state and next before action is: {state.shape}')
+            #reshape state to make sure it could make for both batch and single sample
+            state = state.reshape(1,-1)
             action = agent.act(state, eps)
             #print(f'action is : {action}, and type of action is: {type(action)}')
             next_state, reward, done, _ = env.step(action)
-            agent.memory.remember(state, action, reward, next_state, done)
-
+            agent.memory.remember(state, action, reward, next_state, done) #insert new memories
+            #print(f'agent memory is: {agent.memory.ind_max}')
             if t % 4 == 0 and len(agent.memory) >= agent.batch_size:
+                #print(f'agent started learning process')
                 agent.learn()
                 agent.soft_update(0.001)
-
+            
+            #print(f'current state and next_state is: {state.shape}, {next_state.shape}')
             state = next_state.copy()
             episodic_reward += reward
 
@@ -45,6 +50,6 @@ if __name__ == '__main__':
     states = env.observation_space.shape[0]
     actions = env.action_space.n
     print(f'state space is: {env.observation_space.shape[0]}, action space is: {env.action_space.n}')
-    agent = Agent(actions,states,BATCH_SIZE,LEARNING_RATE,GAMMA)
+    agent = Agent(actions,states,BATCH_SIZE,LEARNING_RATE,GAMMA,True,True)
     rewards_log = train(env, agent, RAM_NUM_EPISODE, EPS_INIT, EPS_DECAY, EPS_MIN, MAX_T)
     agent.Q_local

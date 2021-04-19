@@ -7,7 +7,7 @@ import torch
 
 TD_INIT = config.td_init
 EPSILON = config.epsilon
-
+ALPHA = config.alpha
 
 class Replay_buffer:
     '''
@@ -32,7 +32,7 @@ class Replay_buffer:
         actions = torch.from_numpy(np.vstack([self.memory[ind][1] for ind in index_set])).long()
         rewards = torch.from_numpy(np.vstack([self.memory[ind][2] for ind in index_set])).float()
         next_states = torch.from_numpy(np.vstack([self.memory[ind][3] for ind in index_set])).float()
-        dones = torch.from_numpy(np.vstack([self.memory[ind][4] for ind in index_set]).astype(np.uint8)).f
+        dones = torch.from_numpy(np.vstack([self.memory[ind][4] for ind in index_set]).astype(np.uint8)).float()
 
 
         return states, actions, rewards, next_states, dones
@@ -60,21 +60,25 @@ class Proportion_replay_buffer:
         self.weights.update(delta, ind)
         self.ind_max += 1
 
-    def sample(self, k):
+    def sample(self, batch_size):
         '''
         return sampled transitions. make sure there are at least k transitions
         '''
-        index_set = random.sample(list(range(len(self))), k)
-        states = torch.from_numpy(np.vstack([self.memory[ind][0] for ind in index_set])).floa
-        actions = torch.from_numpy(np.vstack([self.memory[ind][1] for ind in index_set])).lon
-        rewards = torch.from_numpy(np.vstack([self.memory[ind][2] for ind in index_set])).flo
-        next_states = torch.from_numpy(np.vstack([self.memory[ind][3] for ind in index_set]))
+        index_set = [self.weights.retrive(self.weights.vals[0]*random.random()) for _ in range(batch_size)]
+        #print(f'size of index_set is: {len(index_set)},{index_set[0]}')
+        #for each index, normalized probability<->stochastic prioritization
+        probs = torch.from_numpy(np.vstack([self.weights.vals[ind+self.capacity-1]/self.weights.vals[0] for ind in index_set])).float()
+        #print(f'type of probs is: {type(probs)}')
+        states = torch.from_numpy(np.vstack([self.memory[ind][0] for ind in index_set])).float()
+        actions = torch.from_numpy(np.vstack([self.memory[ind][1] for ind in index_set])).long()
+        rewards = torch.from_numpy(np.vstack([self.memory[ind][2] for ind in index_set])).float()
+        next_states = torch.from_numpy(np.vstack([self.memory[ind][3] for ind in index_set])).float()
         dones = torch.from_numpy(np.vstack([self.memory[ind][4] for ind in index_set]).astype(np.uint8)).float()
 
         return index_set, states, actions, rewards, next_states, dones, probs
-    
+
     def insert(self, error, index):
-        delta = error + EPSILON - self.weights.vals[index+self.capacity-1]
+        delta = error + EPSILON - self.weights.vals[index + self.capacity - 1]
         self.weights.update(delta, index)
 
     def __len__(self):

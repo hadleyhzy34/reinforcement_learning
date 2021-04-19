@@ -153,6 +153,7 @@ class Proportion_Replay_Buffer:
     def sample(self, batch_size):
         index_set = [self.weights.retrive(self.weights.vals[0]*random.random()) for _ in range(batch_size)]
         #print(index_set)
+        
         probs = torch.from_numpy(np.vstack([self.weights.vals[ind+self.capacity-1]/self.weights.vals[0] for ind in index_set])).float()                     
         
         states = torch.from_numpy(np.vstack([self.memory[ind][0] for ind in index_set])).float()
