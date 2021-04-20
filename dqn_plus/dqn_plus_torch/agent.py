@@ -51,10 +51,10 @@ class Agent:
         else:
             index_set, states, actions, rewards, next_states, dones, probs = self.memory.sample(self.batch_size)
             #import ipdb;ipdb.set_trace()
-            w = 1/len(self.memory)/probs
+            w = 1/len(self.memory)/probs #reducing weights of the often seen samples
             #print(f'current w shape is: {w.shape}, {w[0]}, {torch.max(w)}')
             #import ipdb;ipdb.set_trace()
-            w = w/torch.max(w)
+            w = w/torch.max(w) #make sure all samples distribution at most equal to 1
         #exp = random.sample(self.memory, self.batch_size)
         #print(f'current exp size is: {len(exp)}')
         #import ipdb; ipdb.set_trace()

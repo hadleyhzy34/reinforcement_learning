@@ -56,13 +56,14 @@ class Proportion_replay_buffer:
     def remember(self, state, action, reward, next_state, done):
         ind = self.ind_max % self.capacity
         self.memory[ind] = (state, action, reward, next_state, done)
+        #import ipdb;ipdb.set_trace()
         delta = self.default + EPSILON - self.weights.vals[ind + self.capacity - 1]
         self.weights.update(delta, ind)
         self.ind_max += 1
 
     def sample(self, batch_size):
         '''
-        return sampled transitions. make sure there are at least k transitions
+        return sampled transitions. make sure there are at least batch_size transitions
         '''
         index_set = [self.weights.retrive(self.weights.vals[0]*random.random()) for _ in range(batch_size)]
         #print(f'size of index_set is: {len(index_set)},{index_set[0]}')

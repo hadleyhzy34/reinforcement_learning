@@ -52,4 +52,6 @@ if __name__ == '__main__':
     print(f'state space is: {env.observation_space.shape[0]}, action space is: {env.action_space.n}')
     agent = Agent(actions,states,BATCH_SIZE,LEARNING_RATE,GAMMA,True,True)
     rewards_log = train(env, agent, RAM_NUM_EPISODE, EPS_INIT, EPS_DECAY, EPS_MIN, MAX_T)
-    agent.Q_local
+    #torch.save(agent.Q_local.state_dict(), '{}_weights.pth'.format(RAM_ENV_NAME))
+    torch.save(agent.Q_local.state_dict(), f'{RAM_ENV_NAME}_weights.pth')
+    #agent.Q_local
