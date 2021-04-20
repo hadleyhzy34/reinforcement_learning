@@ -9,7 +9,7 @@ from replayBuffer import Replay_buffer,Proportion_replay_buffer
 
 
 class Agent:
-    def __init__(self, actions, states, batch_size, lr, gamma, double = True, per = False):
+    def __init__(self, actions, states, batch_size, lr, gamma, visual = False, double = True, per = False):
         self.actions = actions
         self.states = states
         self.actions = actions
@@ -19,9 +19,12 @@ class Agent:
         self.double = double
         self.per = per
 
-            
-        self.Q_local = Q_Network(self.states, self.actions)
-        self.Q_target = Q_Network(self.states, self.actions)
+        if not visual:    
+            self.Q_local = Q_Network(self.states, self.actions)
+            self.Q_target = Q_Network(self.states, self.actions)
+        else:
+            self.Q_local = V_Q_Network(self.states, self.actions)
+            self.Q_target = V_Q_Network(self.states, self.actions)
         
         #self.soft_update(1)
         self.optimizer = optim.Adam(self.Q_local.parameters(), self.lr)
