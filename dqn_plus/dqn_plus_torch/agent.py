@@ -4,12 +4,15 @@ from collections import deque
 import torch
 import torch.optim as optim
 import random
-from replayBuffer import Replay_buffer,Proportion_replay_buffer
+from replayBuffer_io import Replay_buffer,Proportion_replay_buffer
 
 
 
 class Agent:
     def __init__(self, actions, states, batch_size, lr, gamma, visual = False, double = True, per = False):
+        '''
+        when dealing with visual inputs, state_size should work as num_of_frame
+        '''
         self.actions = actions
         self.states = states
         self.actions = actions
@@ -33,7 +36,10 @@ class Agent:
         if not self.per:
             self.memory = Replay_buffer(int(1e5), self.batch_size)
         else:
-            self.memory = Proportion_replay_buffer(int(1e5), self.batch_size)
+            '''
+            1e6 is too large for 16g ram, temporarily set it to be 1e4 at most, otherwise system would crash
+            '''
+            self.memory = Proportion_replay_buffer(int(1e4), self.batch_size)
 
     def act(self, state, eps=0):
         if random.random() > eps:

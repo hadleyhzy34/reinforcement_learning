@@ -1,5 +1,16 @@
 import numpy as np
 
+def preprocess(image, constant):
+    image = image[34:194, :,:] #160,160,3
+    #print(f'current size of image is: {image.shape}')
+    image = np.mean(image, axis=2, keepdims=False) #160,160
+    #print(f'image size after mean ops: {image.shape}')
+    image = image[::2,::2] #80 80
+    image = image/256 
+    image = image - constant/256 #remove background
+    return image 
+    
+
 class SumTree:
     def __init__(self, capacity):
         self.capacity = capacity # number of leaf nodes

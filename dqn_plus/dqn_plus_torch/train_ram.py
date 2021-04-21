@@ -12,6 +12,7 @@ def train(env, agent, num_episode, eps_init, eps_decay, eps_min, max_t):
 
         episodic_reward = 0
         done = False
+        #import ipdb;ipdb.set_trace()
         state = env.reset()
         t = 0
 
@@ -50,8 +51,8 @@ if __name__ == '__main__':
     states = env.observation_space.shape[0]
     actions = env.action_space.n
     print(f'state space is: {env.observation_space.shape[0]}, action space is: {env.action_space.n}')
-    agent = Agent(actions,states,BATCH_SIZE,LEARNING_RATE,GAMMA,True,True)
+    agent = Agent(actions,states,BATCH_SIZE,LEARNING_RATE,GAMMA,False,True,True)
     rewards_log = train(env, agent, RAM_NUM_EPISODE, EPS_INIT, EPS_DECAY, EPS_MIN, MAX_T)
     #torch.save(agent.Q_local.state_dict(), '{}_weights.pth'.format(RAM_ENV_NAME))
-    torch.save(agent.Q_local.state_dict(), f'{RAM_ENV_NAME}_weights.pth')
+    torch.save(agent.Q_local.state_dict(), f'{RAM_ENV_NAME}_test_weights.pth')
     #agent.Q_local

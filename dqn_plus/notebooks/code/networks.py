@@ -36,7 +36,7 @@ class Visual_Q_Network(nn.Module):
 
     def __init__(self, num_frame, num_action, duel=False):
         super(Visual_Q_Network, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=num_frame, out_channels=16, kernel_size=8, stride=4, padding=2, duel=False)  # 16, 20, 20
+        self.conv1 = nn.Conv2d(in_channels=num_frame, out_channels=16, kernel_size=8, stride=4, padding=2)  # 16, 20, 20
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=2)  # 32, 9, 9
         self.fc1 = nn.Linear(32 * 81, 256)
         self.fc2 = nn.Linear(256, num_action)

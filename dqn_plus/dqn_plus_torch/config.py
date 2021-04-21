@@ -13,7 +13,7 @@ VISUAL_ENV_NAME = 'Pong-v0'
 CONSTANT = 90
 
 #Training parameters
-RAM_NUM_EPISODE = 1000
+RAM_NUM_EPISODE = 10000
 VISUAL_NUM_EPISODE = 3000
 EPS_INIT = 1
 EPS_DECAY = 0.995
@@ -26,3 +26,6 @@ NUM_FRAME = 2
 alpha = 0.5
 epsilon = 0.05
 td_init = 1
+
+#memory file path
+file_path = './checkPoints/'

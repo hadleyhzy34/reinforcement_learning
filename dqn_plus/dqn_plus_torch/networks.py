@@ -35,7 +35,7 @@ class V_Q_Network(nn.Module):
     '''
 
     def __init__(self, num_frame, num_action, duel=True):
-        super(Visual_Q_Network, self).__init__()
+        super(V_Q_Network, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=num_frame, out_channels=16, kernel_size=8, stride=4, padding=2)  # 16, 20, 20
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=2)  # 32, 9, 9
         self.fc1 = nn.Linear(32 * 81, 256)
@@ -45,6 +45,7 @@ class V_Q_Network(nn.Module):
             self.fc3 = nn.Linear(256, 1)
 
     def forward(self, image):
+        #import ipdb;ipdb.set_trace()
         x = F.relu(self.conv1(image))
         x = F.relu(self.conv2(x))
         x = x.view(-1, 32 * 81)

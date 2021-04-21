@@ -4,6 +4,7 @@ from utils import SumTree
 import numpy as np
 import random
 import torch
+import json
 
 TD_INIT = config.td_init
 EPSILON = config.epsilon
@@ -43,7 +44,7 @@ class Replay_buffer:
 
 class Proportion_replay_buffer:
     '''
-    proportion-based replay buffer, 1e6 is too large for 16g ram, temporarily set it to be 1e4
+    proportion-based replay buffer, modification to read and write memory data from disk, not from ram
     '''
     def __init__(self, capacity = int(1e6), batch_size = None):
         self.capacity = capacity
@@ -55,6 +56,19 @@ class Proportion_replay_buffer:
 
     def remember(self, state, action, reward, next_state, done):
         ind = self.ind_max % self.capacity
+        '''
+        write memory data to json file and saved it to checkpoints folder
+        '''
+        dict = {}
+        dict['state'] = state
+        dict['action'] = action
+        dict['reward'] = reward
+        dict['next_state'] = next_state
+        dict['done'] = done
+        temp_dict = json.dumps(dict)
+        with open(file_path+'memory'+ind+'.json', 'w') as file:
+            file.write(temp_dict)
+
         self.memory[ind] = (state, action, reward, next_state, done)
         #import ipdb;ipdb.set_trace()
         delta = self.default + EPSILON - self.weights.vals[ind + self.capacity - 1]
