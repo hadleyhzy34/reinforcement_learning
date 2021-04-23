@@ -39,7 +39,7 @@ class Agent:
             '''
             1e6 is too large for 16g ram, temporarily set it to be 1e4 at most, otherwise system would crash
             '''
-            self.memory = Proportion_replay_buffer(int(1e4), self.batch_size)
+            self.memory = Proportion_replay_buffer(int(1e5), self.batch_size)
 
     def act(self, state, eps=0):
         if random.random() > eps:
@@ -76,6 +76,7 @@ class Agent:
         #import ipdb;ipdb.set_trace()
         Q_values = self.Q_local(states)
         #print(f'current q values based on current states size is: {Q_values.shape}')
+        #import ipdb;ipdb.set_trace()
         Q_values = torch.gather(input=Q_values, dim=-1, index=actions)
 
         with torch.no_grad():
