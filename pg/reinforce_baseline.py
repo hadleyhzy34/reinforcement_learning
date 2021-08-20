@@ -37,6 +37,7 @@ class Policy(nn.Module):
     implements both actor and critic in one model
     """
     def __init__(self):
+        # import ipdb;ipdb.set_trace()
         super(Policy, self).__init__()
         self.affine1 = nn.Linear(4, 128)
 
@@ -54,6 +55,7 @@ class Policy(nn.Module):
         """
         forward of both actor and critic
         """
+        # import ipdb;ipdb.set_trace()
         x = F.relu(self.affine1(x))
 
         # actor: choses action to take from state s_t 
@@ -75,13 +77,14 @@ eps = np.finfo(np.float32).eps.item()
 
 
 def select_action(state):
+    # import ipdb;ipdb.set_trace()
     state = torch.from_numpy(state).float()
     probs, state_value = model(state)
 
     # create a categorical distribution over the list of probabilities of actions
     m = Categorical(probs)
 
-    # and sample an action using the distribution
+    # and sample an action based on sample distribution
     action = m.sample()
 
     # save to action buffer
@@ -95,6 +98,7 @@ def finish_episode():
     """
     Training code. Calculates actor and critic loss and performs backprop.
     """
+    # import ipdb;ipdb.set_trace()
     R = 0
     saved_actions = model.saved_actions
     policy_losses = [] # list to save actor (policy) loss
@@ -107,6 +111,7 @@ def finish_episode():
         R = r + args.gamma * R
         returns.insert(0, R)
 
+    # import ipdb;ipdb.set_trace()
     returns = torch.tensor(returns)
     returns = (returns - returns.mean()) / (returns.std() + eps)
 
@@ -122,6 +127,7 @@ def finish_episode():
     # reset gradients
     optimizer.zero_grad()
 
+    # import ipdb;ipdb.set_trace()
     # sum up all the values of policy_losses and value_losses
     loss = torch.stack(policy_losses).sum() + torch.stack(value_losses).sum()
 
@@ -139,7 +145,7 @@ def main():
 
     # run inifinitely many episodes
     for i_episode in count(1):
-
+        # import ipdb;ipdb.set_trace()
         # reset environment and episode reward
         state = env.reset()
         ep_reward = 0
