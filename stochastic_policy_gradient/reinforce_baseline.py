@@ -10,6 +10,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 
+import matplotlib.pyplot as plt
+
 # Cart Pole
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
@@ -75,6 +77,13 @@ model = Policy()
 optimizer = optim.Adam(model.parameters(), lr=3e-2)
 eps = np.finfo(np.float32).eps.item()
 
+# draw learning diagram
+def draw(_range, output):
+    plt.plot(list(range(_range)),output,label='a2c learning')
+    plt.title('a2c learning curve')
+    plt.legend()
+    plt.show()
+    plt.savefig('a2c_learning_curve.png')
 
 def select_action(state):
     # import ipdb;ipdb.set_trace()
@@ -143,6 +152,7 @@ def finish_episode():
 def main():
     running_reward = 10
 
+    hist_reward = []
     # run inifinitely many episodes
     for i_episode in count(1):
         # import ipdb;ipdb.set_trace()
@@ -171,6 +181,14 @@ def main():
         # update cumulative reward
         running_reward = 0.05 * ep_reward + (1 - 0.05) * running_reward
 
+        # draw
+        if i_episode > 500:
+            draw(len(hist_reward), hist_reward)
+            break
+
+        hist_reward.append(ep_reward)
+        print(f'current episodes : {i_episode}, {len(hist_reward)}')
+
         # perform backprop
         finish_episode()
 
@@ -181,6 +199,7 @@ def main():
 
         # check if we have "solved" the cart pole problem
         if running_reward > env.spec.reward_threshold:
+            draw(i_episode, hist_reward)
             print("Solved! Running reward is now {} and "
                   "the last episode runs to {} time steps!".format(running_reward, t))
             break

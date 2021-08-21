@@ -10,6 +10,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 
+import matplotlib.pyplot as plt
+
 # Cart Pole
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
@@ -29,6 +31,8 @@ env.seed(args.seed)
 torch.manual_seed(args.seed)
 state_space = env.observation_space.shape[0]
 
+# model saved path
+PATH = '/home/swarm/developments/reinforcement_learning/stochastic_policy_gradient/a2c'
 
 # SavedAction = namedtuple('SavedAction', ['log_prob', 'value'])
 
@@ -126,11 +130,23 @@ class Critic(nn.Module):
 
 eps = np.finfo(np.float32).eps.item()
 
+# draw learning diagram
+def draw(_range, output):
+    plt.plot(list(range(_range)),output,label='a2c learning')
+    plt.title('a2c learning curve')
+    plt.legend()
+    # plt.show()
+    plt.savefig('a2c_learning_curve.png') # save plt as picture then show the picture, otherwise picture cannot be saved
+    plt.show()
+
 
 def main():
     running_reward = 10
     actor = Actor(state_space)
     critic = Critic(state_space)
+
+    # diagram for training process reward
+    hist_reward = []
 
     # run inifinitely many episodes
     for i_episode in count(1):
@@ -188,11 +204,23 @@ def main():
             print('Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}'.format(
                   i_episode, ep_reward, running_reward))
 
+        # jump out of training process after 500 episodes
+        if i_episode > 500:
+            draw(len(hist_reward), hist_reward)
+            torch.save(actor.state_dict(),PATH+'/a2c_model.pth')
+            break
+        
+        hist_reward.append(ep_reward)
+
         # check if we have "solved" the cart pole problem
         if running_reward > env.spec.reward_threshold:
+            draw(len(hist_reward), hist_reward)
+            torch.save(actor.state_dict(),PATH+'/a2c_model.pth')
             print("Solved! Running reward is now {} and "
                   "the last episode runs to {} time steps!".format(running_reward, t))
             break
+
+# demonstrate learned actor model
 
 
 if __name__ == '__main__':
